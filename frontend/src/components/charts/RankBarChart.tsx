@@ -67,7 +67,8 @@ export function RankBarChart({ items, colors, expected, unit, onSelect }: RankBa
             symbol: 'none',
             silent: true,
             lineStyle: { color: CHART_COLORS.expected, type: 'dashed', opacity: 0.6 },
-            label: { color: CHART_COLORS.text, formatter: `TB ${formatDecimal(expected, 1)}`, position: 'end' },
+            // The category axis is inverted, so the line's start is at the top, clear of the value axis labels.
+            label: { color: CHART_COLORS.text, formatter: `TB ${formatDecimal(expected, 1)}`, position: 'start' },
             data: [{ xAxis: expected }],
           },
         },
