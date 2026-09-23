@@ -4,7 +4,7 @@
  */
 
 import type { TooltipComponentOption } from 'echarts'
-import { BarChart, GraphChart, HeatmapChart, LineChart, RadarChart, ScatterChart } from 'echarts/charts'
+import { BarChart, GraphChart, HeatmapChart, LineChart, PieChart, RadarChart, ScatterChart } from 'echarts/charts'
 import {
   DataZoomComponent,
   GridComponent,
@@ -12,6 +12,7 @@ import {
   MarkAreaComponent,
   MarkLineComponent,
   RadarComponent,
+  TitleComponent,
   TooltipComponent,
   VisualMapComponent,
 } from 'echarts/components'
@@ -23,6 +24,7 @@ echarts.use([
   GraphChart,
   HeatmapChart,
   LineChart,
+  PieChart,
   RadarChart,
   ScatterChart,
   DataZoomComponent,
@@ -31,6 +33,7 @@ echarts.use([
   MarkAreaComponent,
   MarkLineComponent,
   RadarComponent,
+  TitleComponent,
   TooltipComponent,
   VisualMapComponent,
   CanvasRenderer,
@@ -53,6 +56,9 @@ export const CHART_COLORS = {
   accent: '#a78bfa',
   expected: '#e2e8f0',
 }
+
+/** One colour per đầu (tens digit), so numbers of the same head are easy to spot. */
+export const HEAD_COLORS = ['#38bdf8', '#34d399', '#a3e635', '#facc15', '#fb923c', '#f87171', '#f472b6', '#c084fc', '#818cf8', '#94a3b8']
 
 /** Cold → hot gradient: blue, cyan, yellow, orange, red. */
 export const HEAT_GRADIENT = ['#1e3a8a', '#0ea5e9', '#facc15', '#f97316', '#dc2626']

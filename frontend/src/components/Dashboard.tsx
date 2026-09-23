@@ -16,6 +16,11 @@ import { TABS, type TabId } from './tabConfig.ts'
 import { FrequencyTab } from './tabs/FrequencyTab.tsx'
 import { GroupsTab } from './tabs/GroupsTab.tsx'
 import { PairsTab } from './tabs/PairsTab.tsx'
+import { TabBacktest } from './tabs/TabBacktest.tsx'
+import { TabCalendar } from './tabs/TabCalendar.tsx'
+import { TabClustering } from './tabs/TabClustering.tsx'
+import { TabMarkov } from './tabs/TabMarkov.tsx'
+import { TabSpecialDeep } from './tabs/TabSpecialDeep.tsx'
 import { StreaksTab } from './tabs/StreaksTab.tsx'
 
 interface DashboardProps {
@@ -111,6 +116,11 @@ export function Dashboard({ dataset, latest }: DashboardProps) {
         {tab === 'streaks' && <StreaksTab analysis={analysis} onSelectNumber={setSelected} />}
         {tab === 'groups' && <GroupsTab analysis={analysis} />}
         {tab === 'pairs' && <PairsTab analysis={analysis} onSelectNumber={setSelected} />}
+        {tab === 'markov' && <TabMarkov analysis={analysis} onSelectNumber={setSelected} />}
+        {tab === 'calendar' && <TabCalendar analysis={analysis} onSelectNumber={setSelected} />}
+        {tab === 'special5' && <TabSpecialDeep analysis={analysis} />}
+        {tab === 'clustering' && <TabClustering analysis={analysis} onSelectNumber={setSelected} />}
+        {tab === 'backtest' && <TabBacktest analysis={analysis} />}
       </div>
 
       <footer className="pt-4 text-center text-xs text-slate-600">

@@ -10,10 +10,14 @@ interface SumHistogramChartProps {
   labels: string[]
   observed: ArrayLike<number>
   expected: readonly number[]
+  /** Axis name and tooltip prefix of a bin. */
+  binName?: string
+  /** An optional extra reference curve, e.g. a normal approximation. */
+  extra?: { name: string; values: readonly number[]; color: string }
 }
 
-/** Observed "tổng" histogram (bars) against the theoretical distribution (line). */
-export function SumHistogramChart({ labels, observed, expected }: SumHistogramChartProps) {
+/** Observed histogram (bars) against the theoretical distribution (line). */
+export function SumHistogramChart({ labels, observed, expected, binName = 'Tổng', extra }: SumHistogramChartProps) {
   const option = useMemo<EChartsOption>(
     () => ({
       tooltip: {
@@ -22,7 +26,8 @@ export function SumHistogramChart({ labels, observed, expected }: SumHistogramCh
         formatter: (p: unknown) => {
           const i = (p as { dataIndex: number }[])[0].dataIndex
           const diff = expected[i] > 0 ? observed[i] / expected[i] - 1 : 0
-          return `Tổng <b>${labels[i]}</b><br/>Thực tế: <b>${formatInt(observed[i])}</b><br/>Lý thuyết: ${formatDecimal(expected[i], 1)} (${formatSignedPercent(diff, 1)})`
+          const extraLine = extra ? `<br/>${extra.name}: ${formatDecimal(extra.values[i], 1)}` : ''
+          return `${binName} <b>${labels[i]}</b><br/>Thực tế: <b>${formatInt(observed[i])}</b><br/>Lý thuyết: ${formatDecimal(expected[i], 1)} (${formatSignedPercent(diff, 1)})${extraLine}`
         },
       },
       legend: { top: 0, right: 0, textStyle: { color: CHART_COLORS.text }, itemWidth: 14, itemHeight: 8 },
@@ -31,8 +36,8 @@ export function SumHistogramChart({ labels, observed, expected }: SumHistogramCh
         ...AXIS_BASE,
         type: 'category',
         data: labels,
-        name: 'Tổng',
-        axisLabel: { ...AXIS_BASE.axisLabel, interval: 0 },
+        name: binName,
+        axisLabel: { ...AXIS_BASE.axisLabel, interval: labels.length > 24 ? 4 : 0 },
       },
       yAxis: { ...AXIS_BASE, type: 'value', axisLabel: { ...AXIS_BASE.axisLabel, color: CHART_COLORS.muted } },
       series: [
@@ -66,9 +71,22 @@ export function SumHistogramChart({ labels, observed, expected }: SumHistogramCh
           lineStyle: { color: '#fbbf24', width: 2 },
           itemStyle: { color: '#fbbf24' },
         },
+        ...(extra
+          ? [
+              {
+                name: extra.name,
+                type: 'line' as const,
+                data: extra.values.map((v) => Number(v.toFixed(2))),
+                smooth: true,
+                symbol: 'none',
+                lineStyle: { color: extra.color, width: 1.5, type: 'dashed' as const },
+                itemStyle: { color: extra.color },
+              },
+            ]
+          : []),
       ],
     }),
-    [labels, observed, expected],
+    [labels, observed, expected, binName, extra],
   )
 
   return <Chart option={option} height={300} />

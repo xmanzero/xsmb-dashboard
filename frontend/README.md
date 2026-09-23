@@ -18,7 +18,7 @@ npm install
 npm run dev        # http://localhost:5173
 ```
 
-`npm run dev` và `npm run build` tự chạy `npm run copy-data` trước. Script này copy `../data/xsmb-2-digits.json` sang `public/data/` (bỏ khoảng trắng thừa, còn khoảng 2,9 MB) và tạo `xsmb-latest.json` chứa kỳ quay mới nhất với đầy đủ các chữ số. Thư mục `public/data/` không được commit.
+`npm run dev` và `npm run build` tự chạy `npm run copy-data` trước. Script này copy `../data/xsmb-2-digits.json` sang `public/data/` (bỏ khoảng trắng thừa, còn khoảng 2,9 MB), tạo `xsmb-latest.json` chứa kỳ quay mới nhất với đầy đủ các chữ số, và `xsmb-special.json` (khoảng 160 KB) chứa giải ĐB đủ 5 chữ số của mọi kỳ, chỉ được tải khi mở tab Giải ĐB 5 số. Thư mục `public/data/` không được commit.
 
 ## Các lệnh
 
@@ -40,17 +40,22 @@ npm run dev        # http://localhost:5173
 npm test
 ```
 
-Test nằm cạnh code: [src/utils/lotteryStats.test.ts](src/utils/lotteryStats.test.ts) và [src/services/dataLoader.test.ts](src/services/dataLoader.test.ts). Mỗi test dựng một bộ dữ liệu nhỏ đã biết trước đáp án và kiểm tra:
+Test nằm cạnh code: [src/utils/lotteryStats.test.ts](src/utils/lotteryStats.test.ts), [src/utils/advancedStats.test.ts](src/utils/advancedStats.test.ts) và [src/services/dataLoader.test.ts](src/services/dataLoader.test.ts). Mỗi test dựng một bộ dữ liệu nhỏ đã biết trước đáp án và kiểm tra:
 
 - bộ lọc thời gian (N kỳ, N năm, khoảng tùy chọn, ngày 29/2);
 - tần suất lô và đề, xếp hạng khi bằng nhau;
 - lô gan hiện tại, kỷ lục gan, ngưỡng cảnh báo, nhịp rơi, nháy;
 - đầu, đuôi, chạm, tổng, đầu câm, đuôi câm, chẵn/lẻ, tài/xỉu;
 - ma trận cặp số, lift, xếp hạng cặp;
+- bạc nhớ (ma trận chuyển tiếp), cặp lộn, lô rơi từ đề, chuỗi bệt;
+- thứ trong tuần, lịch âm (ngày Tết đã biết, tháng nhuận 2023), tên năm Can Chi;
+- giải ĐB 5 số: càng, tổng 5 chữ số, dạng số, báo kép;
+- PCA (trị riêng, mốc ngẫu nhiên Marchenko–Pastur), xiên 3;
+- engine backtest: thanh toán theo nháy, cháy tài khoản, không nhìn trước kết quả;
 - giá trị p của kiểm định χ² (so với giá trị tham chiếu và công thức chính xác);
 - kiểm tra dữ liệu đầu vào (số ngoài 0–99, ngày trùng).
 
-Các con số trên dữ liệu thật cũng đã được đối chiếu với pandas: tần suất 1 năm (lớn nhất 121, nhỏ nhất 81, trung bình 97,47, độ lệch chuẩn 9,57, khớp README của dự án), lô gan, đầu câm và cặp số.
+Các con số trên dữ liệu thật cũng đã được đối chiếu với pandas: tần suất 1 năm (lớn nhất 121, nhỏ nhất 81, trung bình 97,47, độ lệch chuẩn 9,57, khớp README của dự án), lô gan, đầu câm và cặp số. Các hàm trong `advancedStats.ts` (bạc nhớ, cặp lộn, bệt, thứ trong tuần, GĐB 5 số, PCA so với `numpy.linalg.eigh`, xiên 3 và cả ba chiến thuật backtest) khớp 20/20 với một bản cài đặt độc lập bằng Python.
 
 ### Kiểm tra thủ công trước khi phát hành
 
@@ -63,21 +68,23 @@ Chạy `npm run build && npm run preview` rồi kiểm tra:
 5. **Tab 2**: đổi cách sắp xếp lô gan; chọn số khác ở mục Nhịp rơi bằng dropdown và nút ‹ ›; kéo thanh trượt dòng thời gian (với khoảng Toàn bộ).
 6. **Tab 3**: đổi Radar Đầu & Đuôi / Chạm, Tổng 0–18 / Tổng lô đề, Chẵn/Lẻ / Tài/Xỉu.
 7. **Tab 4**: rê chuột vào nút mạng liên kết để làm nổi các cặp; bấm một nút thì danh sách "Số hay về cùng" đổi theo; kéo và cuộn để phóng to.
-8. **Link theo tab**: mở `/#streaks`, `/#groups`, `/#pairs` thì phải vào thẳng tab tương ứng.
+8. **Link theo tab**: mở `/#streaks`, `/#groups`, `/#pairs`, `/#backtest` thì phải vào thẳng tab tương ứng, nút nhóm "Cơ bản / Chuyên sâu" chuyển theo.
 9. **Điện thoại**: thu cửa sổ còn khoảng 390px (hoặc dùng chế độ thiết bị của DevTools). Trang không được cuộn ngang, thanh lọc xuống dòng hợp lý.
 10. **Bàn phím**: dùng Tab/Shift+Tab đi qua bộ lọc, tab và các nút; mọi phần tử đều có viền focus.
+11. **Nhóm Chuyên sâu**: đổi số ở Bạc nhớ; đổi đài và ngày âm lịch ở Chu kỳ lịch; tab Giải ĐB 5 số tải dữ liệu riêng rồi hiện biểu đồ; bấm chấm trên biểu đồ PCA mở chi tiết số; ở Mô phỏng, đổi chiến thuật và tham số thì các ô chỉ số, đường cong vốn và bảng so sánh cập nhật ngay.
 
 ## Cấu trúc
 
 ```
 scripts/copy-data.mjs         copy dữ liệu từ ../data vào public/data
 src/services/dataLoader.ts    tải JSON một lần, kiểm tra, chuyển thành Uint8Array gọn
-src/utils/lotteryStats.ts     toàn bộ thuật toán thống kê (hàm thuần, không phụ thuộc React)
+src/utils/lotteryStats.ts     thuật toán thống kê cơ bản (hàm thuần, không phụ thuộc React)
+src/utils/advancedStats.ts    thuật toán cho nhóm tab Chuyên sâu: bạc nhớ, lịch âm, GĐB 5 số, PCA, xiên 3, backtest
 src/hooks/useAnalysis.ts      nối bộ lọc với thuật toán bằng useMemo
 src/lib/echarts.ts            đăng ký các module ECharts cần dùng, bảng màu biểu đồ
 src/components/               Header, bộ lọc, thẻ KPI, modal, các panel
 src/components/charts/        từng biểu đồ ECharts
-src/components/tabs/          4 tab phân tích
+src/components/tabs/          9 tab: 4 Cơ bản, 5 Chuyên sâu (tabConfig.ts khai báo nhóm)
 ```
 
 Quy ước trong `lotteryStats.ts`: "lượt" đếm mọi lần về (kể cả nháy), "kỳ" đếm mỗi kỳ tối đa một lần; gan là số kỳ liên tiếp chưa về; nhịp = gan + 1.

@@ -137,6 +137,44 @@ export async function loadLatestDraw(): Promise<FullDraw | null> {
   }
 }
 
+export const SPECIALS_URL = 'data/xsmb-special.json'
+
+/**
+ * Aligns [date, special] pairs with the dataset: result[i] is the 5-digit special prize of
+ * ds.dates[i], or −1 when missing or invalid.
+ */
+export function alignSpecials(ds: Dataset, raw: unknown): Int32Array {
+  if (!Array.isArray(raw)) throw new Error('Dữ liệu giải ĐB không hợp lệ.')
+  const byDate = new Map<string, number>()
+  for (const entry of raw) {
+    if (Array.isArray(entry) && typeof entry[0] === 'string' && Number.isInteger(entry[1]) && entry[1] >= 0 && entry[1] <= 99_999) {
+      byDate.set(entry[0].slice(0, 10), entry[1])
+    }
+  }
+  return Int32Array.from(ds.dates, (date) => byDate.get(date) ?? -1)
+}
+
+const specialsCache = new WeakMap<Dataset, Promise<Int32Array>>()
+
+/** Loads the full special prizes on demand (only the special-prize tab needs them). */
+export function loadSpecials(ds: Dataset): Promise<Int32Array> {
+  let pending = specialsCache.get(ds)
+  if (!pending) {
+    pending = fetch(`${import.meta.env.BASE_URL}${SPECIALS_URL}`, FETCH_OPTIONS)
+      .then((res) => {
+        if (!res.ok) throw new Error(`Không tải được dữ liệu giải ĐB (${res.status} ${res.statusText}).`)
+        return res.json()
+      })
+      .then((raw) => alignSpecials(ds, raw))
+      .catch((err: unknown) => {
+        specialsCache.delete(ds)
+        throw err
+      })
+    specialsCache.set(ds, pending)
+  }
+  return pending
+}
+
 let cache: Promise<Dataset> | null = null
 
 /**

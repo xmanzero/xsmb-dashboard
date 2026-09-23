@@ -40,3 +40,8 @@ const full = JSON.parse(await readFile(join(sourceDir, 'xsmb.json'), 'utf-8'))
 const latest = full.reduce((a, b) => (b.date > a.date ? b : a))
 await writeFile(join(targetDir, 'xsmb-latest.json'), JSON.stringify(latest))
 console.log(`wrote xsmb-latest.json: ${latest.date.slice(0, 10)}`)
+
+// Full 5-digit special prize of every draw, as [date, special] pairs, for the special-prize tab.
+const specials = full.map((r) => [r.date.slice(0, 10), r.special])
+await writeFile(join(targetDir, 'xsmb-special.json'), JSON.stringify(specials))
+console.log(`wrote xsmb-special.json: ${specials.length} draws`)

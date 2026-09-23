@@ -1,13 +1,10 @@
 import type { EChartsOption } from 'echarts'
 import { useMemo } from 'react'
 
-import { CHART_COLORS, prefersReducedMotion, TOOLTIP_BASE } from '../../lib/echarts.ts'
+import { CHART_COLORS, HEAD_COLORS, prefersReducedMotion, TOOLTIP_BASE } from '../../lib/echarts.ts'
 import { formatDecimal, formatInt, formatPercent } from '../../utils/format.ts'
 import { head, pad2, type PairNetwork } from '../../utils/lotteryStats.ts'
 import { Chart, type ChartClickParams } from '../Chart.tsx'
-
-/** One colour per đầu (tens digit) so numbers of the same head are easy to spot. */
-const HEAD_COLORS = ['#38bdf8', '#34d399', '#a3e635', '#facc15', '#fb923c', '#f87171', '#f472b6', '#c084fc', '#818cf8', '#94a3b8']
 
 interface PairNetworkChartProps {
   network: PairNetwork
